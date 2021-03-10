@@ -75,6 +75,7 @@ EOF
 >containers/dev/client.env cat <<-EOF
 #Applciation
 PORT=443
+BACKEND_URL=https://172.20.0.2:44351
 
 #SSL
 HTTPS=true
@@ -86,9 +87,12 @@ ASPNETCORE_ENVIRONMENT=Development
 
 #Project
 ASPNETCORE_URLS=https://+:44351;http://+:8051
+FRONTEND_LOCATION=https://172.20.0.3
 
 #SSL
 ASPNETCORE_Kestrel__Certificates__Default__Path=/https/$AppName.crt
 ASPNETCORE_Kestrel__Certificates__Default__KeyPath=/https/$AppName.key
 EOF
 
+#Add Design Document Location
+mkdir design

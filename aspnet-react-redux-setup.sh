@@ -8,8 +8,9 @@ AppName=$1
 npx create-react-app $AppName-client --template typescript
 cd $AppName-client
 npm install redux react-redux
-npm install --save-dev @types/redux @types/react-redux
-npm install @microsoft/signalr @types/node
+npm install --save-dev @types/redux @types/react-redux        #add redux
+npm install @microsoft/signalr @types/node                    #add signalr
+npm install @azure/msal-browser                               #add azure ad
 
 #Create ASP.NET Backend
 cd ..

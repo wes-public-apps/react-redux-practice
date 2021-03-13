@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using chat_server.hubs;
 
 namespace chat_server
 {
@@ -16,6 +17,15 @@ namespace chat_server
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddSignalR();
+
+            services.AddCors(options =>
+                options.AddPolicy("CorsPolicy",
+                    builder =>
+                        builder.AllowAnyMethod()
+                        .AllowAnyHeader()
+                        .WithOrigins("https://172.20.0.3")
+                        .AllowCredentials()));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -26,14 +36,15 @@ namespace chat_server
                 app.UseDeveloperExceptionPage();
             }
 
+            // app.UseCors("CorsPolicy");
             app.UseRouting();
+            app.UseCors("CorsPolicy");
+            // app.UseDefaultFiles();
+            // app.UseStaticFiles();
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapGet("/", async context =>
-                {
-                    await context.Response.WriteAsync("Hello World!");
-                });
+                endpoints.MapHub<ChatHub>("/hub");
             });
         }
     }

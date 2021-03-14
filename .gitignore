@@ -1,2 +1,5 @@
 #SSL Files
 [Cc]ertificates/
+
+#Azure AD 
+chat-client/src/config/auth-config.json

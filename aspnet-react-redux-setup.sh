@@ -76,7 +76,6 @@ EOF
 >containers/dev/client.env cat <<-EOF
 #Applciation
 PORT=443
-BACKEND_URL=https://172.20.0.2:44351
 
 #SSL
 HTTPS=true

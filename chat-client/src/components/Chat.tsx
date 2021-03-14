@@ -8,6 +8,7 @@ import { HubConnection, HubConnectionBuilder, HubConnectionState } from '@micros
 import ChatWindow from './ChatWindow';
 import ChatInput from './ChatInput';
 import { IMessage } from './Message';
+import ChatHubConfig from '../config/chathub-config.json';
 
 //#region Type Definitions
 interface IChatProps {
@@ -16,6 +17,16 @@ interface IChatProps {
 interface IChatState {
     connection: HubConnection | null;
     messages: IMessage[];
+}
+//#endregion
+
+//#region Chat Hub Method Names
+enum ClientHubMethods {
+    onRecieveMessage = 'RecieveMessage',
+}
+
+enum ServerHubMethods {
+    SendMessage = "SendMessage",
 }
 //#endregion
 
@@ -30,7 +41,7 @@ class Chat extends React.Component<IChatProps,IChatState>{
         try {
             console.log("Building Connection");
             newConnection = new HubConnectionBuilder()
-                .withUrl(process.env.BACKEND_URL+'/hub')
+                .withUrl(ChatHubConfig.BACKEND_URL+'/hub')
                 .withAutomaticReconnect()
                 .build();
             console.log("built without error")
@@ -49,7 +60,7 @@ class Chat extends React.Component<IChatProps,IChatState>{
         this.state.connection.start()
         .then(result => {
             console.log("Connection Established");
-            this.state.connection!.on('RecieveMessage',(user: string, message: string) => {
+            this.state.connection!.on(ClientHubMethods.onRecieveMessage,(user: string, message: string) => {
                 console.log(user+" "+message);
                 this.setState(state => {         
                     return {
@@ -73,7 +84,7 @@ class Chat extends React.Component<IChatProps,IChatState>{
         try {
             if (this.state.connection!.state===HubConnectionState.Connected){
                 console.log("Message Sent");
-                await this.state.connection!.send('SendMessage', user, message);
+                await this.state.connection!.send(ServerHubMethods.SendMessage, user, message);
             }else{
                 console.log("Disconnected");
             }

@@ -1,0 +1,9 @@
+{
+    "auth": {
+      "clientId": "client id from azure ad app registration"
+    },
+    "cache": {
+      "cacheLocation": "sessionStorage",
+      "storeAuthStateInCookie": false
+    }
+}

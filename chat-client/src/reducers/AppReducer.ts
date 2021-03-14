@@ -3,8 +3,12 @@
 // Define the app reducer function to be a composite of it's building blocks.
 
 import { combineReducers } from 'redux';
-import { AuthReducer } from './AuthReducer';
+import { AuthReducer, IAuthState } from './AuthReducer';
+
+export interface IAppStore{
+    auth: IAuthState
+}
 
 export default combineReducers({
-    AuthReducer,
+    auth: AuthReducer,
 });

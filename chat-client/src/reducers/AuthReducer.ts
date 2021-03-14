@@ -5,7 +5,7 @@
 import { AccountInfo } from "@azure/msal-browser";
 
 //#region Type Definitions
-type IAuthState = {
+export type IAuthState = {
     account: AccountInfo | null,
     error: any,
     idToken: string | null,
@@ -13,7 +13,7 @@ type IAuthState = {
     isAuthenticated: boolean,
 };
 
-type IAuthAction = {
+export type IAuthAction = {
     type?: AUTH_REDUCER_ACTIONS,
     payload?: IAuthState
 };

@@ -1,9 +1,25 @@
 {
-    "auth": {
-      "clientId": "client id from azure ad app registration"
-    },
-    "cache": {
-      "cacheLocation": "sessionStorage",
-      "storeAuthStateInCookie": false
-    }
+  "MSAL_CONFIG": {
+      "auth": {
+        "clientId": "client id from azure ad app registration",
+        "redirectUri": "https://172.20.0.3"
+      },
+      "cache": {
+        "cacheLocation": "sessionStorage",
+        "storeAuthStateInCookie": false
+      }
+  },
+  "SERVER_CONFIG": {
+    "resourceUri": "https://172.20.0.2:44351/hubs",
+    "resourceScopes": ["exposed api id from server azure ad app registration"]
+  },
+  "LOGIN_REQUEST_CONFIG":{
+    "scopes": ["openid", "profile", "offline_access"]
+  },
+  "TOKEN_REQUEST_CONFIG":{
+    "scopes":[]
+  },
+  "SILENT_REQUEST_CONFIG": {
+    "scopes": ["openid", "profile"]
+  }
 }

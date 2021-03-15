@@ -24,6 +24,7 @@ export enum AUTH_REDUCER_ACTIONS {
     UPDATE_ACCOUNT,
     UPDATE_ERROR,
     UPDATE_TOKEN,
+    CLEAR_ALL,
 }
 
 const initialState: IAuthState = {
@@ -54,6 +55,11 @@ export const AuthReducer = (state: IAuthState = initialState, action: IAuthActio
                 idToken: action.payload?.idToken,
                 accessToken: action.payload?.accessToken,
             };
+        
+        case AUTH_REDUCER_ACTIONS.CLEAR_ALL:
+            return {
+                ...initialState
+            }
 
         default:
             return state

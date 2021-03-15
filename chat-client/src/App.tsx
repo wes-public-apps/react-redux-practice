@@ -45,8 +45,10 @@ class App extends React.Component<IAppProps,IAppState>{
   }
 }
 
+//#region Add store items to App
 const mapStateToProps = (store: IAppStore): IAppProps => {
   return  { isAuthenticated: store.auth.isAuthenticated?true:false };
 } 
+//#endregion
 
 export default connect(mapStateToProps)(App);

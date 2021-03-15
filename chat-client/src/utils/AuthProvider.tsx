@@ -87,6 +87,9 @@ class AuthProvider extends React.Component<IAuthProviderProps,IAuthProviderState
             account: this.props.account ? this.props.account : undefined
         }
         this.msal.logout(logoutRequest)
+
+        //consider creating a clear all action
+        this.props.clearAuthData();
     }
 
     /** Get authentication token */
@@ -152,14 +155,17 @@ const mapStateToProps = (store: IAppStore): IAuthState => {
 
 const mapDispatchToProps = (dispatch: any): IAuthActions => ({
     updateAccount: (account: AccountInfo | null) => {
-         dispatch(AuthActions.updateAccount(account))
+         dispatch(AuthActions.updateAccount(account));
     },
     updateError: (error: any) => {
-        dispatch(AuthActions.updateError(error))
+        dispatch(AuthActions.updateError(error));
     },
     updateToken: (idToken: string | null,accessToken: string | null) => {
-        dispatch(AuthActions.updateToken(idToken,accessToken))
+        dispatch(AuthActions.updateToken(idToken,accessToken));
     },
+    clearAuthData: () => {
+        dispatch(AuthActions.clearAuthData());
+    }
 });
 //#endregion
 

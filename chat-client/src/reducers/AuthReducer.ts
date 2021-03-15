@@ -6,31 +6,27 @@ import { AccountInfo } from "@azure/msal-browser";
 
 //#region Type Definitions
 export type IAuthState = {
-    account: AccountInfo | null,
-    error: any,
-    idToken: string | null,
-    accessToken: string | null,
-    isAuthenticated: boolean,
+    account?: AccountInfo | null,
+    error?: any,
+    idToken?: string | null,
+    accessToken?: string | null,
+    isAuthenticated?: boolean,
 };
 
 export type IAuthAction = {
     type?: AUTH_REDUCER_ACTIONS,
-    payload?: IAuthState
+    payload?: IAuthState,
 };
 //#endregion
 
 //#region Constants
-export const enum AUTH_REDUCER_ACTIONS {
+export enum AUTH_REDUCER_ACTIONS {
     UPDATE_ACCOUNT,
     UPDATE_ERROR,
     UPDATE_TOKEN,
 }
 
 const initialState: IAuthState = {
-    account: null,
-    error: null,
-    idToken: null,
-    accessToken: null,
     isAuthenticated: false,
 };
 //#endregion
@@ -41,24 +37,23 @@ export const AuthReducer = (state: IAuthState = initialState, action: IAuthActio
         case AUTH_REDUCER_ACTIONS.UPDATE_ACCOUNT:
             return {
                 ...state,
-                account: action.payload,
-                idToken: action.payload?.idToken,
-                accessToken: action.payload?.accessToken,
-                isAuthenticated: true
+                account: action.payload?.account,
+                isAuthenticated: action.payload?.account ? true: false,
             };
 
         case AUTH_REDUCER_ACTIONS.UPDATE_ERROR:
             return {
                 ...state,
-                error: action.payload,
+                error: action.payload?.error,
                 isAuthenticated: false,
             };
 
         case AUTH_REDUCER_ACTIONS.UPDATE_TOKEN:
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 idToken: action.payload?.idToken,
-                accessToken: action.payload?.accessToken
-            });
+                accessToken: action.payload?.accessToken,
+            };
 
         default:
             return state

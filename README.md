@@ -10,6 +10,10 @@ start: from containers/prod run "docker-compose up -d"
 stop: from containers/prod run "docker-compose down"
 
 # Development
+__Run__:
+start: from containers/dev run "docker-compose up -d"
+stop: from containers/dev run "docker-compose down"
+
 __Setup__:
 * create new repo
 * setup project by running "./aspnet-react-redux-setup.sh"

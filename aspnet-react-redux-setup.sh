@@ -18,6 +18,7 @@ npm install @azure/msal-browser                               #add azure ad
 cd ..
 dotnet new web -o $AppName-server
 cd $AppName-server
+dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer    #add bear token authentication support
 cat << EOF >> .gitignore
 #Binary files
 [Oo]bj/
@@ -46,10 +47,11 @@ services:
     working_dir: /client
     volumes: 
       - ../../certificates:/https:ro
-      - ../../$AppName-client:/client
-    env_file: 
-      - client.env
+      - ../../chat-client:/client
     command: ["npm","start"]
+    environment: 
+      - SSL_CRT_FILE=/https/chat.crt
+      - SSL_KEY_FILE=/https/chat.key
     networks:
       webapp:
         ipv4_address: 172.20.0.3
@@ -57,12 +59,13 @@ services:
   server:
     image: mcr.microsoft.com/dotnet/sdk:5.0
     working_dir: /server
-    env_file:
-      - server.env
     volumes:
       - ../../certificates:/https:ro
-      - ../../$AppName-server:/server
+      - ../../chat-server:/server
     command: ["dotnet","watch","run"]
+    environment:
+      - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/chat.crt
+      - ASPNETCORE_Kestrel__Certificates__Default__KeyPath=/https/chat.key
     networks:
       webapp:
         ipv4_address: 172.20.0.2
@@ -75,25 +78,25 @@ networks:
         - subnet: 172.20.0.0/16
           gateway: 172.20.0.1
 EOF
->containers/dev/client.env cat <<-EOF
+
+#Define important environment variables
+>chat-client/.env cat <<-EOF
 #Applciation
 PORT=443
 
 #SSL
 HTTPS=true
-SSL_CRT_FILE=/https/$AppName.crt
-SSL_KEY_FILE=/https/$AppName.key
+SSL_CRT_FILE=../containers/$AppName.crt
+SSL_KEY_FILE=../containers/$AppName.key
 EOF
->containers/dev/server.env cat <<-EOF
-ASPNETCORE_ENVIRONMENT=Development
-
+>chat-server/.env cat <<-EOF
 #Project
 ASPNETCORE_URLS=https://+:44351;http://+:8051
 FRONTEND_LOCATION=https://172.20.0.3
 
 #SSL
-ASPNETCORE_Kestrel__Certificates__Default__Path=/https/$AppName.crt
-ASPNETCORE_Kestrel__Certificates__Default__KeyPath=/https/$AppName.key
+ASPNETCORE_Kestrel__Certificates__Default__Path=../containers/$AppName.crt
+ASPNETCORE_Kestrel__Certificates__Default__KeyPath=../containers/$AppName.key
 EOF
 
 #Add Design Document Location

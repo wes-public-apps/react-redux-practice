@@ -1,3 +1,4 @@
 {
-    "BACKEND_URL":  "https://172.20.0.2:44351"
+    "BACKEND_URL":  "https://172.20.0.2:44351",
+    "SIGNALR_EXT":  "/ChatHub"
 }

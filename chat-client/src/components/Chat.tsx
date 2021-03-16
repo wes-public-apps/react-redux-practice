@@ -45,7 +45,7 @@ class Chat extends React.Component<IChatProps,IChatState>{
         try {
             console.log("Building Connection");
             newConnection = new HubConnectionBuilder()
-                .withUrl(ChatHubConfig.BACKEND_URL+'/hub')
+                .withUrl(ChatHubConfig.BACKEND_URL+ChatHubConfig.SIGNALR_EXT)
                 .withAutomaticReconnect()
                 .build();
             console.log("built without error")

@@ -21,6 +21,7 @@ services:
       - ../../chat-server:/server
     command: ["dotnet","watch","run"]
     environment:
+      - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/chat.crt
       - ASPNETCORE_Kestrel__Certificates__Default__KeyPath=/https/chat.key
     networks:

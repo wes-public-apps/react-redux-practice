@@ -4,8 +4,9 @@ import './App.css';
 import Chat from './components/Chat';
 import { IAppStore } from './reducers/AppReducer';
 import { connect } from 'react-redux';
-import { Nav, Navbar } from 'react-bootstrap';
 import AuthProvider from './utils/AuthProvider';
+import { Navbar, Nav } from 'react-bootstrap';
+import "./App.css";
 
 interface IAppProps {
   isAuthenticated: boolean;
@@ -25,9 +26,8 @@ class App extends React.Component<IAppProps,IAppState>{
         <Navbar bg="dark" variant="dark">
           <Navbar.Brand href="/">Chat</Navbar.Brand>
           <Nav className="mr-auto">
-
+            <AuthProvider />
           </Nav>
-          <AuthProvider />
         </Navbar>
         <div className="ChatAppContent">
         {

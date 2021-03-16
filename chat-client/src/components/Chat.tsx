@@ -9,9 +9,13 @@ import ChatWindow from './ChatWindow';
 import ChatInput from './ChatInput';
 import { IMessage } from './Message';
 import ChatHubConfig from '../config/chathub-config.json';
+import { IAppStore } from '../reducers/AppReducer';
+import { AccountInfo } from '@azure/msal-common';
+import { connect } from 'react-redux';
 
 //#region Type Definitions
 interface IChatProps {
+    user?: AccountInfo | null;
 }
 
 interface IChatState {
@@ -80,11 +84,11 @@ class Chat extends React.Component<IChatProps,IChatState>{
      * Calls ASP.NET Core Hub method "SendMessage".
      * @param message message to send to recipients
      */
-    sendMessage = async (user: string, message: string)=>{
+    sendMessage = async (message: string)=>{
         try {
             if (this.state.connection!.state===HubConnectionState.Connected){
                 console.log("Message Sent");
-                await this.state.connection!.send(ServerHubMethods.SendMessage, user, message);
+                await this.state.connection!.send(ServerHubMethods.SendMessage, this.props.user?.name, message);
             }else{
                 console.log("Disconnected");
             }
@@ -107,4 +111,13 @@ class Chat extends React.Component<IChatProps,IChatState>{
     //#endregion
 }
 
-export default Chat;
+//#region Map store items to Component
+const mapStateToProps = (store:IAppStore):IChatProps => {
+    return {
+        user: store.auth.account
+    }
+}
+
+//#endregion
+
+export default connect(mapStateToProps)(Chat);

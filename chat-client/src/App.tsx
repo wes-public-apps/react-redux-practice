@@ -21,8 +21,8 @@ class App extends React.Component<IAppProps,IAppState>{
 
   render(){
     return (
-      <div className="ChatApp">
-        <Navbar className="ChatAppNavBar" bg="dark" variant="dark">
+      <>
+        <Navbar bg="dark" variant="dark">
           <Navbar.Brand href="/">Chat</Navbar.Brand>
           <Nav className="mr-auto">
 
@@ -40,7 +40,7 @@ class App extends React.Component<IAppProps,IAppState>{
             </>
         }
         </div>
-      </div>
+      </>
     );
   }
 }

@@ -16,11 +16,11 @@ import { connect } from 'react-redux';
 //#region Type Definitions
 interface IChatProps {
     user?: AccountInfo | null;
-    accessToken?: string | null;
+    accessToken: string;
 }
 
 interface IChatState {
-    connection?: HubConnection;
+    connection: HubConnection | null;
     messages: IMessage[];
 }
 //#endregion
@@ -43,20 +43,17 @@ class Chat extends React.Component<IChatProps,IChatState>{
 
         //Initialize state
         this.state = {
-            messages: [{User: "user",Message: "message"}]
+            connection: null,
+            messages: [],
         }
     }
 
-    componentDidMount(){
-        console.log("Mounting Component");
-    }
-
-    componentDidUpdate(){
-        console.log("Updating Component");
-        if(!this.state.connection && this.props.accessToken) this.establishChatHubConnection();
-    }
-
     //#region Public Methods
+    /** Hook into component props or state changed event */
+    componentDidUpdate(){
+        if(this.props.accessToken!=="") this.establishChatHubConnection();
+    }
+
     /**
      * Calls ASP.NET Core Hub method "SendMessage".
      * @param message message to send to recipients
@@ -67,7 +64,7 @@ class Chat extends React.Component<IChatProps,IChatState>{
                 console.log("Message Sent");
                 await this.state.connection?.send(ServerHubMethods.SendMessage, message);
             }else{
-                console.log("Disconnected");
+                this.setState({connection: null});
             }
         }
         catch(e) {
@@ -91,8 +88,7 @@ class Chat extends React.Component<IChatProps,IChatState>{
     /** Establishes connection with chathub. Gets connection url from chathub-config.json file. */
     private establishChatHubConnection(){
         if(this.state.connection) return;
-
-        let newConnection: HubConnection | undefined = undefined;
+        let newConnection: HubConnection | null;
 
         //Connect to ASP.NET Hub for real-time communication
         try {
@@ -100,12 +96,13 @@ class Chat extends React.Component<IChatProps,IChatState>{
             console.log(this.props.accessToken);
             newConnection = new HubConnectionBuilder()
                 .withUrl(ChatHubConfig.BACKEND_URL+ChatHubConfig.SIGNALR_EXT,{
-                    accessTokenFactory: () => this.props.accessToken ? this.props.accessToken : ""
+                    accessTokenFactory: () => this.props.accessToken
                 })
                 .withAutomaticReconnect()
                 .build();
             console.log("built without error")
         }catch(e){
+            newConnection=null;
             console.log(e);
         }
     
@@ -113,25 +110,28 @@ class Chat extends React.Component<IChatProps,IChatState>{
 
         //Start Connection
         newConnection.start()
-        .then(result => {
-            console.log("Connection Established");
-            //Define server callable client methods
-            newConnection?.on(ClientHubMethods.onRecieveMessage,(user: string, message: string) => {
-                console.log(user+" "+message);
-                this.setState(state => {         
-                    return {
-                        messages: [...state.messages, {User:user,Message:message}]
-                    };
+            .then(result => {
+                console.log("Connection Established");
+                //Define server callable client methods
+                newConnection?.on(ClientHubMethods.onRecieveMessage,(user: string, message: string) => {
+                    console.log(user+" "+message);
+                    this.setState(state => {         
+                        return {
+                            messages: [...state.messages, {User:user,Message:message}]
+                        };
+                    });
                 });
-            });
 
-        })
-        .catch(e => console.log("Failed to Connect."))
+            })
+            .catch(function(e){console.log("Failed to Connect.")})
 
         //Add a handler for if connection disconnects
-        newConnection.onclose(() => { alert("Connection Lost"); })
+        newConnection.onclose(() => { 
+            alert("Connection Lost"); 
+            this.setState({connection: null});
+        })
 
-        //update state
+        //update component
         this.setState({connection: newConnection});
     }
 
@@ -142,7 +142,7 @@ class Chat extends React.Component<IChatProps,IChatState>{
 const mapStateToProps = (store:IAppStore):IChatProps => {
     return {
         user: store.auth.account,
-        accessToken: store.auth.accessToken,
+        accessToken: store.auth.accessToken ? store.auth.accessToken : "",
     }
 }
 

@@ -3,3 +3,6 @@
 
 #Azure AD 
 chat-client/src/config/auth-config.json
+
+#IDE
+.vscode/

@@ -16,10 +16,11 @@ import { connect } from 'react-redux';
 //#region Type Definitions
 interface IChatProps {
     user?: AccountInfo | null;
+    accessToken?: string | null;
 }
 
 interface IChatState {
-    connection: HubConnection | null;
+    connection?: HubConnection;
     messages: IMessage[];
 }
 //#endregion
@@ -40,43 +41,19 @@ class Chat extends React.Component<IChatProps,IChatState>{
     constructor(props: IChatProps){
         super(props);
 
-        //Connect to ASP.NET Hub for real-time communication
-        let newConnection: HubConnection | null = null;
-        try {
-            console.log("Building Connection");
-            newConnection = new HubConnectionBuilder()
-                .withUrl(ChatHubConfig.BACKEND_URL+ChatHubConfig.SIGNALR_EXT)
-                .withAutomaticReconnect()
-                .build();
-            console.log("built without error")
-        }catch(e){
-            console.log(e);
-        }
-
         //Initialize state
         this.state = {
-            connection: newConnection,
             messages: [{User: "user",Message: "message"}]
         }
-    
-        if(this.state.connection===null) return;
+    }
 
-        this.state.connection.start()
-        .then(result => {
-            console.log("Connection Established");
-            this.state.connection!.on(ClientHubMethods.onRecieveMessage,(user: string, message: string) => {
-                console.log(user+" "+message);
-                this.setState(state => {         
-                    return {
-                      connection: state.connection,
-                      messages: [...state.messages, {User:user,Message:message}]
-                    };
-                });
-                console.log(this.state);
-            });
+    componentDidMount(){
+        console.log("Mounting Component");
+    }
 
-        })
-        .catch(e => console.log("Failed to Connect."))
+    componentDidUpdate(){
+        console.log("Updating Component");
+        if(!this.state.connection && this.props.accessToken) this.establishChatHubConnection();
     }
 
     //#region Public Methods
@@ -86,9 +63,9 @@ class Chat extends React.Component<IChatProps,IChatState>{
      */
     sendMessage = async (message: string)=>{
         try {
-            if (this.state.connection!.state===HubConnectionState.Connected){
+            if (this.state.connection?.state===HubConnectionState.Connected){
                 console.log("Message Sent");
-                await this.state.connection!.send(ServerHubMethods.SendMessage, this.props.user?.name, message);
+                await this.state.connection?.send(ServerHubMethods.SendMessage, message);
             }else{
                 console.log("Disconnected");
             }
@@ -99,7 +76,7 @@ class Chat extends React.Component<IChatProps,IChatState>{
     }
 
     render(){
-        if (this.state.connection===null) return <p>No Connection!</p>;
+        if (!this.state.connection) return <p>No Connection!</p>;
         return (
             <div>
                 <ChatInput sendMessage={this.sendMessage} />
@@ -109,12 +86,63 @@ class Chat extends React.Component<IChatProps,IChatState>{
         );
     }
     //#endregion
+
+    //#region Private Methods
+    /** Establishes connection with chathub. Gets connection url from chathub-config.json file. */
+    private establishChatHubConnection(){
+        if(this.state.connection) return;
+
+        let newConnection: HubConnection | undefined = undefined;
+
+        //Connect to ASP.NET Hub for real-time communication
+        try {
+            console.log("Building Connection");
+            console.log(this.props.accessToken);
+            newConnection = new HubConnectionBuilder()
+                .withUrl(ChatHubConfig.BACKEND_URL+ChatHubConfig.SIGNALR_EXT,{
+                    accessTokenFactory: () => this.props.accessToken ? this.props.accessToken : ""
+                })
+                .withAutomaticReconnect()
+                .build();
+            console.log("built without error")
+        }catch(e){
+            console.log(e);
+        }
+    
+        if(!newConnection) return;
+
+        //Start Connection
+        newConnection.start()
+        .then(result => {
+            console.log("Connection Established");
+            //Define server callable client methods
+            newConnection?.on(ClientHubMethods.onRecieveMessage,(user: string, message: string) => {
+                console.log(user+" "+message);
+                this.setState(state => {         
+                    return {
+                        messages: [...state.messages, {User:user,Message:message}]
+                    };
+                });
+            });
+
+        })
+        .catch(e => console.log("Failed to Connect."))
+
+        //Add a handler for if connection disconnects
+        newConnection.onclose(() => { alert("Connection Lost"); })
+
+        //update state
+        this.setState({connection: newConnection});
+    }
+
+    //#endregion
 }
 
 //#region Map store items to Component
 const mapStateToProps = (store:IAppStore):IChatProps => {
     return {
-        user: store.auth.account
+        user: store.auth.account,
+        accessToken: store.auth.accessToken,
     }
 }
 

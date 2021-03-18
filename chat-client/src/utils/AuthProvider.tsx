@@ -95,7 +95,7 @@ class AuthProvider extends React.Component<IAuthProviderProps,IAuthProviderState
     /** Get authentication token */
     acuireToken = async () => {
         this.msal.acquireTokenSilent(AuthProvider.AUTH_CONFIG.SILENT_REQUEST_CONFIG)
-            .then()
+            .then(this.onLoginHandler)
             .catch((err)=> { 
                 console.warn("Failed getting silent token.");
                 if (err) {
